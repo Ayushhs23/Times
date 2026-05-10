@@ -1,0 +1,80 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #f8f8f5;
+  --bg-card: #ffffff;
+  --ink: #131318;
+  --ink-soft: #4a4a52;
+  --ink-faint: #888894;
+  --line: #e5e5e0;
+  --accent: #b85e3a;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d0d10;
+    --bg-card: #15151a;
+    --ink: #f5f5ee;
+    --ink-soft: #b4b4be;
+    --ink-faint: #65656f;
+    --line: #2a2a32;
+    --accent: #e07a52;
+  }
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+.serif { font-family: "Iowan Old Style", "Apple Garamond", "Palatino Linotype", Georgia, serif; }
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+}
+
+.btn {
+  @apply inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-sm rounded-md transition-colors;
+  border: 1px solid var(--line);
+  background: var(--bg-card);
+  color: var(--ink);
+}
+.btn:hover { border-color: var(--ink-faint); }
+.btn-active { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.btn-active:hover { border-color: var(--ink); }
+
+.chip {
+  @apply inline-flex items-center px-2 py-0.5 text-xs rounded-full;
+  border: 1px solid var(--line);
+  color: var(--ink-soft);
+}
+
+.dot { @apply inline-block w-2 h-2 rounded-full; }
+.dot-pos { background: #16a34a; }
+.dot-neu { background: #94a3b8; }
+.dot-neg { background: #dc2626; }
+
+.input {
+  @apply w-full px-3 py-2 text-sm rounded-md outline-none;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  color: var(--ink);
+}
+.input:focus { border-color: var(--accent); }
+
+/* line clamp utilities */
+.line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* soft scrollbar */
+*::-webkit-scrollbar { width: 8px; height: 8px; }
+*::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
+*::-webkit-scrollbar-thumb:hover { background: var(--ink-faint); }
