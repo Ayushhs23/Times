@@ -1,6 +1,6 @@
-# News Intelligence
+# Times
 
-An AI-powered news dashboard. Fetches real-time articles from **NewsData.io**,
+An AI-powered news intelligence dashboard. Fetches real-time articles from **NewsData.io**,
 runs them through an AI pipeline (summary, sentiment, key insights), stores the
 result in **SQLite or Postgres**, and serves a polished **Next.js** dashboard
 with search, filters, and live stats.
@@ -34,8 +34,8 @@ Built for the Datastraw AI + Tech Intern assessment.
 
 ```bash
 # 1. Clone and install
-git clone <your-fork-url> news-intelligence
-cd news-intelligence
+git clone <your-fork-url> times
+cd times
 npm install
 
 # 2. Configure env

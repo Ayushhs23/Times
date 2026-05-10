@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "News Intelligence — AI-curated headlines",
+  title: "Times — AI-curated headlines",
   description:
     "Real-time news fetched from NewsData.io, summarized and analyzed by AI. Search, filter by sentiment, explore key insights.",
 };

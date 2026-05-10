@@ -20,7 +20,7 @@ async function main() {
   const category = process.env.FETCH_CATEGORY || undefined;
 
   const provider = process.env.ANTHROPIC_API_KEY ? "Anthropic Claude" : "lexicon fallback";
-  console.log(`\n  News Intelligence pipeline`);
+  console.log(`\n  Times — news intelligence pipeline`);
   console.log(`  ──────────────────────────`);
   console.log(`  target articles : ${target}`);
   console.log(`  language        : ${language}`);

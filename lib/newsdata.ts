@@ -50,7 +50,7 @@ export async function* fetchNews(opts: FetchOptions): AsyncGenerator<Article> {
 
     let res: Response;
     try {
-      res = await fetch(url, { headers: { "User-Agent": "news-intelligence/1.0" } });
+      res = await fetch(url, { headers: { "User-Agent": "times/1.0" } });
     } catch (e: any) {
       throw new Error(`NewsData.io network error on page ${pageNum}: ${e.message}`);
     }

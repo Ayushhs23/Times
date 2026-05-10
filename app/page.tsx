@@ -58,7 +58,7 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
           <Link href="/" className="flex items-center gap-3 group">
             <Logo />
             <div className="leading-tight">
-              <div className="serif text-[18px] font-bold tracking-tight">News Intelligence</div>
+              <div className="serif text-[18px] font-bold tracking-tight">Times</div>
               <div className="text-[11px] text-[var(--ink-faint)]">AI-curated · real-time</div>
             </div>
           </Link>
