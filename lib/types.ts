@@ -22,11 +22,14 @@ export interface Article {
   ai_provider: string | null;
 }
 
+export type SortKey = "recent" | "positive" | "negative";
+
 export interface ArticleQuery {
   search?: string;
   sentiment?: Sentiment;
   category?: string;
   source?: string;
+  sort?: SortKey;
   limit?: number;
   offset?: number;
 }

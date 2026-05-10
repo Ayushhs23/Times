@@ -16,6 +16,7 @@ export default function FilterBar({ sources, categories }: Props) {
   const sentiment = params.get("sentiment") ?? "";
   const source = params.get("source") ?? "";
   const category = params.get("category") ?? "";
+  const sort = params.get("sort") ?? "recent";
   const initialSearch = params.get("q") ?? "";
 
   const [search, setSearch] = useState(initialSearch);
@@ -23,9 +24,7 @@ export default function FilterBar({ sources, categories }: Props) {
   // Debounced search → URL
   useEffect(() => {
     if (search === initialSearch) return;
-    const id = setTimeout(() => {
-      update({ q: search || undefined });
-    }, 300);
+    const id = setTimeout(() => update({ q: search || undefined }), 300);
     return () => clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search]);
@@ -40,73 +39,139 @@ export default function FilterBar({ sources, categories }: Props) {
     startTransition(() => router.push(`/?${sp.toString()}`));
   }
 
+  const hasActiveFilters = !!(search || sentiment || source || category || (sort && sort !== "recent"));
+
   return (
-    <div className="card rounded-lg p-4 mb-6 space-y-3">
-      <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center">
-        <input
-          className="input md:flex-1"
-          placeholder="Search titles, summaries, descriptions…"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          aria-label="Search articles"
-        />
-        <div className="flex gap-2">
-          <SentimentBtn label="All" active={!sentiment} onClick={() => update({ sentiment: undefined })} />
-          <SentimentBtn label="Positive" tone="pos" active={sentiment === "positive"} onClick={() => update({ sentiment: "positive" })} />
-          <SentimentBtn label="Neutral" tone="neu" active={sentiment === "neutral"} onClick={() => update({ sentiment: "neutral" })} />
-          <SentimentBtn label="Negative" tone="neg" active={sentiment === "negative"} onClick={() => update({ sentiment: "negative" })} />
+    <div className="surface mb-7 p-4 sm:p-5 fade-in">
+      <div className="flex flex-col lg:flex-row gap-3 items-stretch lg:items-center">
+        <div className="relative lg:flex-1">
+          <SearchIcon />
+          <input
+            className="input !pl-10"
+            placeholder="Search titles, summaries, descriptions…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            aria-label="Search articles"
+          />
+          {search && (
+            <button
+              onClick={() => { setSearch(""); update({ q: undefined }); }}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--ink-faint)] hover:text-[var(--ink)] text-lg leading-none"
+              aria-label="Clear search"
+            >×</button>
+          )}
         </div>
+
+        <SegmentedTabs
+          options={[
+            { value: "", label: "All" },
+            { value: "positive", label: "Positive", tone: "pos" },
+            { value: "neutral", label: "Neutral", tone: "neu" },
+            { value: "negative", label: "Negative", tone: "neg" },
+          ]}
+          value={sentiment}
+          onChange={(v) => update({ sentiment: v || undefined })}
+        />
       </div>
 
-      <div className="flex flex-wrap gap-3 text-sm">
+      <div className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-[var(--line)]">
         <select
-          className="input md:max-w-[200px]"
+          className="input !py-2 !text-[13px] max-w-[180px]"
           value={category}
           onChange={(e) => update({ category: e.target.value || undefined })}
           aria-label="Filter by category"
         >
           <option value="">All categories</option>
-          {categories.map((c) => (
-            <option key={c} value={c}>{c}</option>
-          ))}
+          {categories.map((c) => (<option key={c} value={c}>{c}</option>))}
         </select>
         <select
-          className="input md:max-w-[240px]"
+          className="input !py-2 !text-[13px] max-w-[220px]"
           value={source}
           onChange={(e) => update({ source: e.target.value || undefined })}
           aria-label="Filter by source"
         >
           <option value="">All sources</option>
-          {sources.map((s) => (
-            <option key={s} value={s}>{s}</option>
-          ))}
+          {sources.map((s) => (<option key={s} value={s}>{s}</option>))}
         </select>
-        {(search || sentiment || source || category) && (
-          <button
-            className="btn"
-            onClick={() => {
-              setSearch("");
-              update({ q: undefined, sentiment: undefined, source: undefined, category: undefined });
-            }}
-          >
-            Clear filters
-          </button>
-        )}
-        {pending && <span className="text-xs text-[var(--ink-faint)] self-center">Updating…</span>}
+
+        <div className="ml-auto flex items-center gap-2">
+          <span className="eyebrow hidden sm:inline">Sort by</span>
+          <SegmentedTabs
+            small
+            options={[
+              { value: "recent", label: "Recent" },
+              { value: "positive", label: "Most positive" },
+              { value: "negative", label: "Most negative" },
+            ]}
+            value={sort}
+            onChange={(v) => update({ sort: v === "recent" ? undefined : v })}
+          />
+          {hasActiveFilters && (
+            <button
+              className="btn-ghost"
+              onClick={() => {
+                setSearch("");
+                update({ q: undefined, sentiment: undefined, source: undefined, category: undefined, sort: undefined });
+              }}
+            >
+              Clear
+            </button>
+          )}
+          {pending && <span className="text-[11px] text-[var(--ink-faint)]">Updating…</span>}
+        </div>
       </div>
     </div>
   );
 }
 
-function SentimentBtn({
-  label, tone, active, onClick,
+interface SegOption { value: string; label: string; tone?: "pos" | "neu" | "neg" }
+
+function SegmentedTabs({
+  options, value, onChange, small,
 }: {
-  label: string; tone?: "pos" | "neu" | "neg"; active: boolean; onClick: () => void;
+  options: SegOption[]; value: string; onChange: (v: string) => void; small?: boolean;
 }) {
   return (
-    <button onClick={onClick} className={`btn ${active ? "btn-active" : ""}`} aria-pressed={active}>
-      {tone && <span className={`dot dot-${tone}`} />}
-      {label}
-    </button>
+    <div
+      className="inline-flex rounded-lg p-0.5 gap-0.5"
+      style={{ background: "var(--bg-tint)", border: "1px solid var(--line)" }}
+      role="tablist"
+    >
+      {options.map((o) => {
+        const active = value === o.value;
+        return (
+          <button
+            key={o.value}
+            role="tab"
+            aria-selected={active}
+            onClick={() => onChange(o.value)}
+            className={`inline-flex items-center gap-1.5 rounded-md transition-all ${
+              small ? "px-2.5 py-1 text-[12px]" : "px-3 py-1.5 text-[13px]"
+            }`}
+            style={
+              active
+                ? { background: "var(--bg-elevated)", color: "var(--ink)", boxShadow: "var(--shadow-sm)", fontWeight: 500 }
+                : { color: "var(--ink-soft)" }
+            }
+          >
+            {o.tone && <span className={`dot dot-${o.tone}`} />}
+            {o.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function SearchIcon() {
+  return (
+    <svg
+      className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--ink-faint)]"
+      width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+      strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"
+    >
+      <circle cx="11" cy="11" r="7" />
+      <path d="m21 21-4.3-4.3" />
+    </svg>
   );
 }

@@ -20,6 +20,18 @@ export interface Db {
 
 let cached: Db | null = null;
 
+function sqliteOrderBy(sort: string | undefined): string {
+  switch (sort) {
+    case "positive":
+      return "sentiment_score DESC, COALESCE(published_at, fetched_at) DESC";
+    case "negative":
+      return "sentiment_score ASC, COALESCE(published_at, fetched_at) DESC";
+    case "recent":
+    default:
+      return "COALESCE(published_at, fetched_at) DESC";
+  }
+}
+
 export function getDb(): Db {
   if (cached) return cached;
   cached = process.env.DATABASE_URL ? makePostgres() : makeSqlite();
@@ -140,10 +152,11 @@ function makeSqlite(): Db {
       ).c as number;
       const limit = Math.min(q.limit ?? 30, 100);
       const offset = q.offset ?? 0;
+      const orderBy = sqliteOrderBy(q.sort);
       const rows = db
         .prepare(
           `SELECT * FROM articles ${whereSql}
-           ORDER BY COALESCE(published_at, fetched_at) DESC
+           ORDER BY ${orderBy}
            LIMIT ? OFFSET ?`
         )
         .all(...params, limit, offset) as any[];
@@ -317,9 +330,10 @@ function makePostgres(): Db {
       const limit = Math.min(q.limit ?? 30, 100);
       const offset = q.offset ?? 0;
       params.push(limit, offset);
+      const orderBy = sqliteOrderBy(q.sort); // same SQL works for Postgres
       const rows = await pool.query(
         `SELECT * FROM articles ${whereSql}
-         ORDER BY COALESCE(published_at, fetched_at) DESC
+         ORDER BY ${orderBy}
          LIMIT $${params.length - 1} OFFSET $${params.length}`,
         params
       );
